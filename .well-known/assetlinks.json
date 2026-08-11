@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.web.kurandinle",
+      "sha256_cert_fingerprints": [
+        "CF:66:B1:C3:65:BC:27:9F:01:BF:7A:72:26:B4:94:F8:B7:3D:E7:1A:F8:41:BD:5B:83:A9:28:B4:E0:25:28:E7"
+      ]
+    }
+  }
+]
