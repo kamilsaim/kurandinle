@@ -8,7 +8,7 @@
 
 Fatih Okumuş &amp; Nisan Kumru — Arapça tilâvet ve Türkçe meâl
 
-[**▶ kurandinle.web.app**](https://kurandinle.web.app)
+[**▶ kurandinle.web.app**](https://kurandinle.web.app) · [yedek adres](https://kamilsaim.github.io/kurandinle/)
 
 ![kurulum yok](https://img.shields.io/badge/kurulum-gerekmez-0d4c3b)
 ![tek dosya](https://img.shields.io/badge/tek_dosya-HTML-0d4c3b)
@@ -82,9 +82,10 @@ npx wrangler deploy
 
 | Yol | Ne işe yarar |
 |---|---|
-| `kuran-meal-player.html` | **Ana kaynak.** Tek dosyalık oynatıcı. |
+| `kuran-meal-player.html` | **Ana kaynak.** Tek dosyalık oynatıcı. Düzenlemeler burada yapılır. |
 | `public/` | Firebase'e giden klasör — `index.html` + ikonlar + manifest. |
-| `public/index.html` | Ana kaynağın kopyası. Elle düzenlemeyin. |
+| `public/index.html` | Ana kaynağın kopyası → Firebase. Elle düzenlemeyin. |
+| `index.html` | Ana kaynağın kopyası → GitHub Pages. Elle düzenlemeyin. |
 | `worker/` | Cloudflare Workers indirme proxy'si. |
 | `indir.ps1` | Tüm bölümleri indiren betik. |
 | `yayinla.ps1` | Oynatıcıyı `public/`e kopyalar ve yayımlar. |
@@ -93,8 +94,9 @@ npx wrangler deploy
 | `kaynak/` | Özgün yüksek çözünürlüklü logolar. Depoya ve siteye **girmez**. |
 | `mp3/` | İndirilmiş bölümler. Depoya ve siteye **girmez**. |
 
-> **Önemli:** Oynatıcıyı düzenledikten sonra `.\yayinla.ps1 -SadeceKopya`
-> çalıştırın, yoksa değişiklik `public/index.html`e geçmez.
+> **Önemli:** Oynatıcı iki adresten yayımlanıyor ve her ikisi de
+> `kuran-meal-player.html`in kopyası. Düzenledikten sonra `.\yayinla.ps1`
+> çalıştırın — kopyaları eşitleyip yayımlar. Yoksa değişiklik canlıya geçmez.
 
 ## Yayımlama
 

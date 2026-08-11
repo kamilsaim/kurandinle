@@ -1,4 +1,4 @@
-﻿# Oynatıcıyı public/ klasörüne kopyalar ve Firebase'e yayımlar.
+﻿# Oynatıcıyı yayına giden iki kopyaya dağıtır ve Firebase'e yayımlar.
 # Kullanım:
 #   .\yayinla.ps1              -> kopyala + deploy
 #   .\yayinla.ps1 -SadeceKopya -> yalnızca kopyala (deploy etme)
@@ -7,9 +7,15 @@ param([switch]$SadeceKopya)
 
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
+$kaynak = Join-Path $root "kuran-meal-player.html"
 
-Copy-Item (Join-Path $root "kuran-meal-player.html") (Join-Path $root "public\index.html") -Force
-Write-Host "public\index.html guncellendi." -ForegroundColor Green
+# public\index.html -> Firebase Hosting (kurandinle.web.app)
+# index.html        -> GitHub Pages (kamilsaim.github.io/kurandinle)
+# Ikisi de ana kaynagin kopyasidir; elle duzenlemeyin.
+foreach ($hedef in @("public\index.html", "index.html")) {
+  Copy-Item $kaynak (Join-Path $root $hedef) -Force
+  Write-Host "$hedef guncellendi." -ForegroundColor Green
+}
 
 # Logo ve oynat/duraklat gorselleri HTML'in icine gomulu; ayrica kopyalanmasi gerekmiyor.
 # Ikonlar (favicon, PWA) public\ altinda kalicidir.
