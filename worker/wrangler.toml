@@ -1,3 +1,0 @@
-name = "kuran-dl"
-main = "worker.js"
-compatibility_date = "2025-01-01"
