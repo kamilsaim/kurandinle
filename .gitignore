@@ -80,3 +80,7 @@ kaynak/
 # Yayinda kullanilmayanlar (PC de durur, repoya girmez)
 worker/
 indir.ps1
+
+# Deploy ayarlari (PC de durur)
+firebase.json
+.firebaserc
