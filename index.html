@@ -80,6 +80,20 @@
   .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;min-width:44px}
   label.chk{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:13px}
 
+  /* Android uygulaması şeridi: yalnızca Android tarayıcıda, uygulamanın
+     kendi içinde açılmadıysa ve daha önce kapatılmadıysa gösterilir. */
+  #appbar{display:flex;align-items:center;gap:12px;margin:14px 0 0;
+     background:var(--panel);border:1px solid var(--line);border-radius:12px;
+     padding:10px 12px}
+  #appbar[hidden]{display:none}
+  .ab-txt{flex:1;min-width:0;line-height:1.35}
+  .ab-txt b{display:block;font-size:14px}
+  .ab-txt span{display:block;font-size:12.5px;color:var(--muted)}
+  .ab-go{flex:none;background:var(--accent);color:#fff;text-decoration:none;
+     font-weight:600;font-size:13.5px;padding:8px 16px;border-radius:9px}
+  .ab-x{flex:none;background:none;border:0;color:var(--muted);
+     font-size:15px;padding:4px 6px;cursor:pointer}
+  .ab-x:hover{color:var(--fg)}
   #resume{display:none;align-items:center;gap:12px;justify-content:space-between;
      background:var(--panel);border:1px solid var(--accent);border-radius:12px;
      padding:12px 14px;margin:14px 0 0}
@@ -144,6 +158,16 @@
 </header>
 
 <div class="wrap">
+  <div id="appbar" hidden>
+    <div class="ab-txt">
+      <b>Android uygulaması</b>
+      <span>Tam ekran açılır, arka planda çalmaya devam eder.</span>
+    </div>
+    <a class="ab-go" id="apkdl"
+       href="https://github.com/kamilsaim/kurandinle/releases/latest/download/kurandinle.apk">İndir</a>
+    <button class="ab-x" id="abclose" title="Kapat" aria-label="Kapat">✕</button>
+  </div>
+
   <div id="resume">
     <div>
       <div class="rl">Kaldığınız yer</div>
@@ -210,6 +234,20 @@
       <li><b>Hız:</b> 0.75x – 2x arası ayarlanabilir; bölüm bitince sıradakine geçer.</li>
       <li><b>İndirme:</b> bölümleri seçip mp3 olarak bilgisayarınıza kaydedebilirsiniz.</li>
     </ul>
+
+    <h3>Android uygulaması</h3>
+    <p>
+      Siteyi tam ekran açan, adres çubuğu görünmeyen bir Android uygulaması var.
+      Ses arka planda ve ekran kilitliyken çalmaya devam eder, kilit ekranından
+      ve Bluetooth tuşlarıyla yönetebilirsiniz.
+      <a href="https://github.com/kamilsaim/kurandinle/releases/latest/download/kurandinle.apk">Uygulamayı
+      indirin</a> (yaklaşık 1 MB). Kurulum sırasında Android'in
+      “bilinmeyen kaynak” uyarısına izin vermeniz gerekir.
+    </p>
+    <p>
+      Uygulama istemiyorsanız siteyi ana ekranınıza da ekleyebilirsiniz:
+      Chrome'da <b>⋮ → Uygulamayı yükle</b>, iPhone'da <b>Paylaş → Ana Ekrana Ekle</b>.
+    </p>
 
     <h3>Kısayollar</h3>
     <p class="keys">
@@ -687,6 +725,17 @@ $("#iclose").onclick = () => info(false);
 $("#ovl").onclick    = () => info(false);
 addEventListener("keydown", e => { if (e.key === "Escape") info(false); });
 if (location.hash === "#hakkinda") info(true);
+
+// Android uygulaması şeridi. Uygulamanın kendi içinde açıldığında ya da
+// kullanıcı bir kez kapattığında bir daha gösterilmez.
+(function appBar(){
+  const bar = $("#appbar");
+  const androidTarayici = /Android/i.test(navigator.userAgent);
+  const uygulamaIcinde = matchMedia("(display-mode: standalone)").matches
+                      || document.referrer.startsWith("android-app://");
+  if (androidTarayici && !uygulamaIcinde && !store.apkGizle) bar.hidden = false;
+  $("#abclose").onclick = () => { bar.hidden = true; store.apkGizle = 1; save(); };
+})();
 
 render();
 detectMode();

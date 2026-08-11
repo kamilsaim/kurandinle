@@ -87,3 +87,7 @@ firebase.json
 
 # Gelistirici notlari (yerelde durur)
 NOTLAR.md
+
+# APK ve tanitim gorseli (Firebase e gider, repoya gerek yok)
+kurandinle.apk
+afiş.png

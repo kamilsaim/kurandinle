@@ -11,6 +11,8 @@ Arapça tilâvet ve Türkçe meâl — Fatih Okumuş &amp; Nisan Kumru
 
 ### [▶ Dinlemek için tıklayın](https://kurandinle.web.app)
 
+[**⤓ Android uygulaması**](https://github.com/kamilsaim/kurandinle/releases/latest/download/kurandinle.apk) — 1 MB
+
 </div>
 
 ---
@@ -26,6 +28,15 @@ Bağlantıyı açın ve bir bölüme dokunun. Kurulum yok, üyelik yok, reklam y
 - **Hızı ayarlayın.** 0.75x ile 2x arası.
 - **Klavye:** <kbd>Boşluk</kbd> duraklatır, <kbd>←</kbd> <kbd>→</kbd> 15 saniye
   ileri/geri alır.
+
+## Android uygulaması
+
+[**Uygulamayı indirin**](https://github.com/kamilsaim/kurandinle/releases/latest/download/kurandinle.apk)
+(yaklaşık 1 MB) — siteyi tam ekran, adres çubuğu olmadan açar.
+
+Kurarken Android "bilinmeyen kaynak" uyarısı verir; çıkan ekranda izni verip
+devam etmeniz gerekir. Uygulama içinde ses dosyası taşımaz, bölümleri
+site üzerinden dinletir.
 
 ## Telefonda arka planda dinleme
 
