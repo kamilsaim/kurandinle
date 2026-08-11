@@ -73,3 +73,6 @@ mp3/
 
 # Wrangler yerel onbellegi
 .wrangler/
+
+# Ozgun tasarim kaynaklari (yerelde durur)
+kaynak/
