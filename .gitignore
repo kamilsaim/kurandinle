@@ -84,3 +84,6 @@ indir.ps1
 # Deploy ayarlari (PC de durur)
 firebase.json
 .firebaserc
+
+# Gelistirici notlari (yerelde durur)
+NOTLAR.md
