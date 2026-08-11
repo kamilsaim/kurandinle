@@ -1,0 +1,19 @@
+{
+  "name": "Kur'ân-ı Kerîm ve Meâli",
+  "short_name": "Kur'ân Meâli",
+  "description": "Diyanet Kur'an Radyo'nun Kur'ân-ı Kerîm ve Meâli programı — 52 bölüm, Arapça tilâvet ve Türkçe meâl.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0d4c3b",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": ["education", "music"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,107 +1,114 @@
-# Kur'ân-ı Kerîm ve Meâli — oynatıcı + indirici
+<div align="center">
 
-Diyanet Kur'an Radyo'nun *Kur'ân-ı Kerîm ve Meâli* programı (52 bölüm, Fatih Okumuş & Nisan Kumru).
-Ses dosyaları Diyanet'in sunucusunda kalır; buradaki dosyalar yalnızca oynatır ve indirir.
+<img src="docs/logo.png" alt="Kur'ân-ı Kerîm ve Meâli" width="160">
 
-## Durum
+# Kur'ân-ı Kerîm ve Meâli
 
-| Ne | Durum |
-|---|---|
-| Oynatıcı (tek HTML) | Tamam — çalışıyor, test edildi |
-| MP3'lerin indirilmesi | Tamam — 52/52 dosya, `mp3/`, 2,82 GB |
-| Logo, ikonlar, çal/duraklat tuşları | Tamam |
-| Hakkında (bilgi) sayfası | Tamam |
-| Firebase'e yayımlama | **Sırada — sizde** |
-| APK (TWA) | Firebase adresi belli olunca |
+**Diyanet Kur'an Radyo'nun 52 bölümlük *Kur'ân-ı Kerîm ve Meâli* programı için oynatıcı ve indirici.**
 
-## Dosyalar
+Fatih Okumuş &amp; Nisan Kumru — Arapça tilâvet ve Türkçe meâl
 
-| Dosya | Ne işe yarar |
-|---|---|
-| `kuran-meal-player.html` | **Ana kaynak.** Tek dosyalık oynatıcı; çift tıklayıp açın. |
-| `indir.ps1` | Tüm mp3'leri indiren betik. |
-| `yayinla.ps1` | Oynatıcıyı `public/`e kopyalar, Firebase'e yayımlar. |
-| `public/` | Firebase'e giden klasör (`index.html` + görseller + manifest). |
-| `functions/`, `firebase.json` | İndirme proxy'si ve barındırma ayarları. |
-| `mp3/` | İndirilmiş 52 bölüm (2,82 GB). Firebase'e **gitmez**. |
-| `seffaf.png` | Şeffaf zeminli özgün logo — tüm ikonlar bundan üretildi. |
-| `logo-seffaf.png` | Kırpılmış, kareye oturtulmuş logo (512px). Sayfada kullanılan. |
-| `play.png`, `pause.png` | Çal / duraklat tuşları (şeffaf, 256px). |
-| `logo.png` | Beyaz zeminli ilk logo. Artık kullanılmıyor, yedek. |
-| `play-kucuk.png`, `pause-kucuk.png` | `play/pause.png` ile aynı. Silinebilir. |
+[**▶ kurandinle.web.app**](https://kurandinle.web.app)
 
-> **Önemli:** `public/index.html`, `kuran-meal-player.html`'in kopyasıdır.
-> Oynatıcıyı düzenledikten sonra mutlaka `.\yayinla.ps1 -SadeceKopya` çalıştırın.
+![kurulum yok](https://img.shields.io/badge/kurulum-gerekmez-0d4c3b)
+![tek dosya](https://img.shields.io/badge/tek_dosya-HTML-0d4c3b)
+![bağımlılık](https://img.shields.io/badge/bağımlılık-yok-0d4c3b)
+![lisans](https://img.shields.io/badge/içerik-Diyanet_İşleri_Başkanlığı-8a6d3b)
 
-## 1. Yerelde kullanım
+</div>
 
-`kuran-meal-player.html` dosyasına çift tıklayın. Kurulum gerekmez.
+---
 
-Özellikler: sûre araması, kaldığınız yerden devam, otomatik sıradaki bölüm,
-0.75x–2x hız, biten bölümlerde ✓ işareti, klavye kısayolları
-(<kbd>Boşluk</kbd> duraklat, <kbd>←</kbd>/<kbd>→</kbd> 15 sn).
+Ses dosyaları Diyanet'in sunucusunda kalır; buradaki hiçbir şey ses barındırmaz —
+yalnızca oynatır ve indirir. Resmî bir Diyanet projesi değildir.
 
-## 2. MP3 indirme
+## Ne var
+
+- **Tek dosyalık oynatıcı** — `kuran-meal-player.html`, çift tıklayın. Kurulum, sunucu, bağımlılık yok.
+- **Kaldığınız yerden devam** — bölüm ve saniye tarayıcıda saklanır, hiçbir veri sunucuya gitmez.
+- **Sûre araması**, otomatik sıradaki bölüm, 0.75x–2x hız, biten bölümlerde ✓ işareti.
+- **Klavye kısayolları** — <kbd>Boşluk</kbd> duraklat, <kbd>←</kbd>/<kbd>→</kbd> 15 saniye.
+- **Toplu indirme** — seçtiğiniz bölümler ya da 52'sinin tamamı.
+- **Telefonda arka planda çalma** — ana ekrana ekleyin, ekran kilitliyken de devam eder.
+- **Gömülü görseller** — logo ve tuşlar HTML'in içinde; tek dosya, tek başına eksiksiz.
+
+## Hızlı başlangıç
+
+**Sadece dinlemek için:** [kurandinle.web.app](https://kurandinle.web.app) adresini açın.
+Ya da `kuran-meal-player.html` dosyasını indirip çift tıklayın.
+
+**Tüm bölümleri indirmek için:**
 
 ```powershell
-.\indir.ps1
-```
-
-```powershell
-.\indir.ps1 -Bolum 1-10 -Klasor D:\Kuran
+.\indir.ps1                      # 52 bölümün tamamı -> mp3\
+.\indir.ps1 -Bolum 1-10          # sadece 1-10
+.\indir.ps1 -Bolum 3,7,40        # seçili bölümler
+.\indir.ps1 -Klasor D:\Kuran     # başka klasöre
 ```
 
 Yarıda kalırsa tekrar çalıştırın; tamamlanmış dosyalar atlanır.
 Bölüm başına ~55 MB, tamamı ~2,8 GB.
 
-**Neden betik, neden tarayıcıdan değil?** Diyanet'in sunucusu CORS başlığı
-göndermiyor; tarayıcı `file://` sayfasından o adrese istek atmayı engelliyor.
-Bu bir hata değil, güvenlik kuralı. Oynatıcı bunu açılışta sınar: indirme
-mümkün değilse indirme düğmeleri, seçtiğiniz bölümleri indiren hazır bir
-`.ps1` üretir. Firebase'de proxy varsa aynı düğmeler doğrudan indirir.
+## Neden bir indirme proxy'si var
 
-## 3. Firebase Hosting'e yayımlama
+Diyanet'in sunucusu CORS başlığı göndermiyor. Bu, tarayıcının bir sayfadan o
+adrese istek atmasını engeller — bir hata değil, güvenlik kuralı. Sesi *çalmak*
+buna takılmaz (`<audio>` etiketi muaftır), ama *indirmek* takılır.
 
-Sırayla:
+Oynatıcı açılışta hangi yolun açık olduğunu sınar ve düğmeleri ona göre ayarlar:
 
-```bash
-npm install -g firebase-tools
-```
+| Mod | Ne zaman | Düğmeler ne yapar |
+|---|---|---|
+| `proxy` | Bir proxy adresi tanımlı ve ayakta | Dosyaları doğrudan indirir |
+| `direct` | Kaynak CORS'a izin veriyor | Dosyaları doğrudan indirir |
+| `none` | İkisi de yok | Seçilenleri indiren bir `.ps1` üretir |
 
-```bash
-firebase login
-```
-
-Ardından [console.firebase.google.com](https://console.firebase.google.com) →
-"Proje ekle" ile projeyi oluşturun. Sonra bu klasörde:
+`worker/worker.js` bu proxy'dir: dosyayı CORS başlıklarıyla yeniden sunar,
+gövdeyi akıtarak geçirir (55 MB'lık dosyalar belleğe alınmaz) ve Range
+isteklerini destekler. Cloudflare Workers'ın ücretsiz katmanında çalışır.
 
 ```bash
-firebase init hosting
+cd worker
+npx wrangler login
+npx wrangler deploy
 ```
 
-`init` cevapları — dikkat:
+Çıkan adresi `PROXY` sabitine yazın; düğmeler kendiliğinden normal indirmeye geçer.
 
-- Public dizini: **`public`**
-- Single-page app (rewrite all to index.html): **No**
-- `index.html` üzerine yazılsın mı: **No** ← evet derseniz oynatıcı silinir
+> Aynı proxy Firebase Cloud Functions ile de yazılabilir, ama Cloud Functions
+> **Blaze** (kullandıkça öde) planı ister. Cloudflare Workers ücretsizdir.
 
-Yayımlama:
+## Klasör düzeni
+
+| Yol | Ne işe yarar |
+|---|---|
+| `kuran-meal-player.html` | **Ana kaynak.** Tek dosyalık oynatıcı. |
+| `public/` | Firebase'e giden klasör — `index.html` + ikonlar + manifest. |
+| `public/index.html` | Ana kaynağın kopyası. Elle düzenlemeyin. |
+| `worker/` | Cloudflare Workers indirme proxy'si. |
+| `indir.ps1` | Tüm bölümleri indiren betik. |
+| `yayinla.ps1` | Oynatıcıyı `public/`e kopyalar ve yayımlar. |
+| `firebase.json` | Barındırma ayarları. |
+| `kaynak/` | Özgün yüksek çözünürlüklü logolar. Yayımlanmaz. |
+| `mp3/` | İndirilmiş bölümler. Depoya ve siteye **girmez**. |
+
+> **Önemli:** Oynatıcıyı düzenledikten sonra `.\yayinla.ps1 -SadeceKopya`
+> çalıştırın, yoksa değişiklik `public/index.html`e geçmez.
+
+## Yayımlama
 
 ```powershell
-.\yayinla.ps1
+.\yayinla.ps1              # kopyala + Firebase'e yayımla
+.\yayinla.ps1 -SadeceKopya # yalnızca kopyala
 ```
 
-**Alan adı:** Konsol → Hosting → *Add custom domain*. Size bir TXT (doğrulama)
-ve iki A kaydı verir; bunları alan adı sağlayıcınızın DNS panelinden girin.
-SSL otomatik gelir, yayılması birkaç saat sürebilir.
+İlk kurulumda `npm install -g firebase-tools`, ardından `firebase login`.
+Barındırma ücretsiz **Spark** planında sorunsuz çalışır.
 
-**Plan:** İndirme proxy'si (`functions/`) Cloud Function olduğu için **Blaze**
-planı ister. Sadece dinlemek yeterliyse `firebase.json` içindeki `rewrites`
-satırını silin — ücretsiz **Spark** planında dinleme sorunsuz çalışır.
-Proxy üzerinden inen her dosya çıkış trafiği yazar; toplu indirmeyi
-bilgisayarda `indir.ps1` ile yapmak hem bedava hem hızlı.
+**Alan adı:** Konsol → Hosting → *Add custom domain*. Verilen TXT ve iki A
+kaydını DNS panelinize girin; SSL otomatik gelir, yayılması birkaç saat sürebilir.
 
-## 4. Telefonda arka planda çalma
+## Telefonda arka planda çalma
 
 Siteyi telefondan açıp ana ekrana ekleyin (Chrome: ⋮ → "Uygulamayı yükle").
 MediaSession tanımlı olduğu için:
@@ -113,41 +120,36 @@ MediaSession tanımlı olduğu için:
 iPhone'da Safari sekmesinde çalışır; ana ekrana eklenmiş modda iOS bunu daha
 kararsız yönetir.
 
-## 5. APK (sonraki adım)
+## Sırada: APK
 
-Seçilen yol: **TWA (Trusted Web Activity)** — siteyi Chrome motoruyla, adres
+Seçilen yol **TWA (Trusted Web Activity)** — siteyi Chrome motoruyla, adres
 çubuğu olmadan açan ince bir kabuk. Arka plan sesi birebir tarayıcıdaki gibi
 çalışır, APK birkaç yüz KB olur, site güncellenince uygulama da güncellenir.
 
-MP3'leri APK'ya gömmek **elendi**: 2,8 GB'lık APK Play Store'a yüklenemez,
-elden kurulumda telefon iki katı boş alan ister. Düz WebView kabuğu da elendi:
-Android arka planda WebView sesini keser.
-
-TWA'dan önce eklenmesi gerekenler:
+Öncesinde gerekenler:
 
 1. **Service worker** — sitenin "kurulabilir" sayılması için.
-2. **`public/.well-known/assetlinks.json`** — APK ile siteyi eşleştirir;
-   olmazsa uygulamanın üstünde adres çubuğu görünür. İçindeki parmak izi
-   (SHA-256), APK'yı imzalayacağınız anahtardan gelir.
+2. **`public/.well-known/assetlinks.json`** — APK ile siteyi eşleştirir; olmazsa
+   uygulamanın üstünde adres çubuğu görünür. İçindeki SHA-256 parmak izi,
+   APK'yı imzalayacağınız anahtardan gelir.
 
 Sonra PWABuilder ya da Bubblewrap ile APK üretilir.
 
+MP3'leri APK'ya gömmek elendi: 2,8 GB'lık APK Play Store'a yüklenemez. Düz
+WebView kabuğu da elendi: Android arka planda WebView sesini keser.
+
 ## Kaldığınız yer
 
-İlerleme tarayıcının yerel deposunda (localStorage) tutulur; hiçbir veri
-sunucuya gitmez. Kayıt **cihaza ve adrese özeldir** — bilgisayardaki `file://`
-ile telefondaki site birbirinin ilerlemesini görmez. Ortak olması için
-her iki cihazda da aynı Firebase adresini kullanın.
-
-## Bilgi sayfası
-
-Başlıktaki **Hakkında** düğmesi; içeriğin Diyanet Kur'an Radyo'dan geldiğini,
-sesin burada barındırılmadığını, sitenin resmî olmadığını ve telif durumunu
-anlatır. Doğrudan bağlantı: adresin sonuna `#hakkinda` ekleyin.
+İlerleme tarayıcının yerel deposunda (localStorage) tutulur; hiçbir veri sunucuya
+gitmez. Kayıt **cihaza ve adrese özeldir** — bilgisayardaki `file://` ile
+telefondaki site birbirinin ilerlemesini görmez. Ortak olması için her iki
+cihazda da aynı adresi kullanın.
 
 ## Hak durumu
 
-İçerik Diyanet İşleri Başkanlığı'na aittir; site bu bölümleri indirilebilir
-olarak işaretlememiştir. Dosyalar herkese açık sunulduğu için indirme teknik
-olarak çalışır. Kişisel dinleme dışında çoğaltma veya yeniden yayım için
-Diyanet İşleri Başkanlığı'ndan izin alın.
+İçerik **Diyanet İşleri Başkanlığı**'na aittir. Site bu bölümleri indirilebilir
+olarak işaretlememiştir; dosyalar herkese açık sunulduğu için indirme teknik
+olarak çalışır. Kişisel dinleme dışında çoğaltma veya yeniden yayım için Diyanet
+İşleri Başkanlığı'ndan izin alın.
+
+Sayfadaki **Hakkında** düğmesi (`#hakkinda`) bu durumu ziyaretçiye de anlatır.
