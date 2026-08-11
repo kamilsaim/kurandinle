@@ -269,7 +269,7 @@ const BASE = "https://diyanetkuranradyo.com/assets/";
 // Tarayıcı içinden indirme için: kaynak sunucu CORS başlığı göndermediğinden,
 // dosyaları CORS'lu olarak yeniden sunan bir proxy (Cloudflare Worker) kullanılır.
 // Boş bırakılırsa proxy denenmez ve gerekirse PowerShell indiricisine düşülür.
-const PROXY = "";
+const PROXY = "https://kuran-dl.saimkamil.workers.dev/dl/";
 let DLMODE = "probe";   // "proxy" | "direct" | "none"
 
 async function detectMode(){
