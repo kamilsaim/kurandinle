@@ -89,7 +89,8 @@ npx wrangler deploy
 | `indir.ps1` | Tüm bölümleri indiren betik. |
 | `yayinla.ps1` | Oynatıcıyı `public/`e kopyalar ve yayımlar. |
 | `firebase.json` | Barındırma ayarları. |
-| `kaynak/` | Özgün yüksek çözünürlüklü logolar. Yayımlanmaz. |
+| `docs/logo.png` | Bu sayfadaki logo. |
+| `kaynak/` | Özgün yüksek çözünürlüklü logolar. Depoya ve siteye **girmez**. |
 | `mp3/` | İndirilmiş bölümler. Depoya ve siteye **girmez**. |
 
 > **Önemli:** Oynatıcıyı düzenledikten sonra `.\yayinla.ps1 -SadeceKopya`
