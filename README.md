@@ -24,8 +24,13 @@ Bağlantıyı açın ve bir bölüme dokunun. Kurulum yok, üyelik yok, reklam y
 - **Kaldığınız yerden devam eder.** Sayfayı kapatsanız da hangi bölümde, kaçıncı
   saniyede kaldığınız hatırlanır.
 - **Sûre arayın.** Aradığınız sûrenin adını yazmanız yeterli.
-- **Sıradaki bölüm kendiliğinden başlar.** Biten bölümlerde ✓ işareti kalır.
+- **Sıradaki bölüm kendiliğinden başlar.** Biten bölümlerde ✓ işareti, yarım
+  kalanlarda ne kadarını dinlediğinizi gösteren ince bir çizgi kalır.
 - **Hızı ayarlayın.** 0.75x ile 2x arası.
+- **Uyku zamanlayıcısı.** Alt çubuktan 15–60 dakika sonra ya da bulunduğunuz
+  bölüm bitince çalmayı durdurabilirsiniz.
+- **Bağlantı koparsa kendini toparlar.** İnternet bir an kesilirse oynatıcı
+  kaldığı yerden yeniden bağlanır; sayfa çevrimdışıyken de açılır.
 - **Klavye:** <kbd>Boşluk</kbd> duraklatır, <kbd>←</kbd> <kbd>→</kbd> 15 saniye
   ileri/geri alır.
 

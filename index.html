@@ -40,6 +40,8 @@
     h1{font-size:17px}
     .sub{font-size:12px}
     #about{padding:7px 10px;font-size:13px}
+    /* Dar ekranda alt çubuk zaten sıkışık: zamanlayıcı seçicisi küçülsün. */
+    #sleep{font-size:12.5px;padding:6px 8px}
   }
   .wrap{max-width:900px;margin:0 auto;padding:0 16px}
   .tools{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
@@ -48,8 +50,10 @@
   input[type=search]{flex:1;min-width:180px}
   ul{list-style:none;margin:0;padding:0;border:1px solid var(--line);
      border-radius:12px;overflow:hidden;background:var(--panel)}
-  li{display:flex;align-items:center;gap:10px;padding:11px 13px;
+  li{position:relative;display:flex;align-items:center;gap:10px;padding:11px 13px;
      border-top:1px solid var(--line);cursor:pointer}
+  /* Bölümün ne kadarının dinlendiğini gösteren ince çizgi (satırın altında). */
+  li .pr{position:absolute;left:0;bottom:0;height:2px;background:var(--accent);opacity:.75}
   li:first-child{border-top:none}
   li:hover{background:var(--panel2)}
   li.on{background:var(--panel2);box-shadow:inset 3px 0 0 var(--accent)}
@@ -79,6 +83,10 @@
   #seek{flex:1;min-width:140px;accent-color:var(--accent)}
   .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;min-width:44px}
   label.chk{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:13px}
+  /* Zamanlayıcı geri sayımı: boşken yer kaplamasın. */
+  #sleepleft{min-width:0;color:var(--accent2)}
+  /* Ağ durumu satırı (yeniden bağlanılıyor…) — yalnız gerekince görünür. */
+  #net{font-size:12.5px;color:var(--accent2);margin:-4px 0 8px}
 
   /* Android uygulaması şeridi: yalnızca Android tarayıcıda, uygulamanın
      kendi içinde açılmadıysa ve daha önce kapatılmadıysa gösterilir. */
@@ -227,11 +235,16 @@
     <h3>Neler yapabilirsiniz?</h3>
     <ul class="feat">
       <li><b>Kaldığınız yerden devam:</b> son dinlediğiniz bölüm ve dakika hatırlanır,
-        sayfanın üstündeki kartta görünür. Biten bölümler ✓ ile işaretlenir.</li>
+        sayfanın üstündeki kartta görünür. Biten bölümler ✓ ile işaretlenir; yarım
+        kalanların satır altında ne kadarını dinlediğinizi gösteren ince bir çizgi olur.</li>
       <li><b>Arama:</b> sûre adı yazarak ilgili bölümü bulun (ör. “Yâsîn”, “Bakara”).</li>
       <li><b>Arka planda çalma:</b> telefonda ana ekrana eklerseniz ekran kilitliyken de
         dinlemeye devam eder, kilit ekranından kontrol edebilirsiniz.</li>
       <li><b>Hız:</b> 0.75x – 2x arası ayarlanabilir; bölüm bitince sıradakine geçer.</li>
+      <li><b>Uyku zamanlayıcısı:</b> alt çubuktan 15–60 dakika sonra ya da bulunduğunuz
+        bölüm bitince çalmayı durdurabilirsiniz.</li>
+      <li><b>Bağlantı koparsa:</b> internet bir an kesilirse oynatıcı kaldığı yerden
+        kendi kendine yeniden bağlanır; sayfa çevrimdışıyken de açılır.</li>
       <li><b>İndirme:</b> bölümleri seçip mp3 olarak bilgisayarınıza kaydedebilirsiniz.</li>
     </ul>
 
@@ -273,6 +286,7 @@
 <footer>
   <div class="bar">
     <div class="now" id="now">Bir bölüm seçin</div>
+    <div class="sub" id="net" hidden></div>
     <div class="row">
       <button id="prev" title="Önceki">⏮</button>
       <button class="play" id="pp" title="Oynat/Duraklat">
@@ -288,6 +302,15 @@
         <option>1.5</option><option>1.75</option><option>2</option>
       </select>
       <label class="chk"><input type="checkbox" id="auto" checked> Sıradakine geç</label>
+      <select id="sleep" title="Uyku zamanlayıcısı">
+        <option value="0">Zamanlayıcı yok</option>
+        <option value="15">15 dk sonra dur</option>
+        <option value="30">30 dk sonra dur</option>
+        <option value="45">45 dk sonra dur</option>
+        <option value="60">60 dk sonra dur</option>
+        <option value="end">Bu bölüm bitince dur</option>
+      </select>
+      <span class="t" id="sleepleft"></span>
     </div>
   </div>
 </footer>
@@ -428,7 +451,11 @@ function render(){
       '<span class="nm">' + d[1] + '</span>' +
       (done ? '<span class="done" title="Bitirildi">✓</span>'
             : p && p.t > 30 ? '<span class="done" title="Kaldığın yer">' + fmt(p.t) + '</span>' : '') +
-      '<button class="dl" title="Bu bölümü MP3 olarak indir">⤓</button>';
+      '<button class="dl" title="Bu bölümü MP3 olarak indir">⤓</button>' +
+      // Süresi bilinen ve yarım kalmış bölümlerde satır altına ilerleme çizgisi.
+      (p && p.d && !done
+        ? '<i class="pr" style="width:' + Math.min(100, p.t / p.d * 100).toFixed(1) + '%"></i>'
+        : done ? '<i class="pr" style="width:100%"></i>' : '');
     li.querySelector(".sel").onchange = e => {
       e.target.checked ? picked.add(i) : picked.delete(i);
       syncSel();
@@ -609,6 +636,9 @@ function play(i, resume = true){
   }
   $("#now").innerHTML = "<b>" + d[0] + ".</b> " + d[1];
   document.title = d[0] + ". " + d[1] + " — Kur'ân-ı Kerîm ve Meâli";
+  wanted = true;
+  netMsg("");
+  tries = 0;
   a.play().catch(()=>{});
   media(d);
   render();
@@ -623,8 +653,8 @@ function media(d){
     album: "Kur'ân-ı Kerîm ve Meâli — Diyanet Kur'an Radyo"
   });
   const h = navigator.mediaSession;
-  h.setActionHandler("play",  () => a.play());
-  h.setActionHandler("pause", () => a.pause());
+  h.setActionHandler("play",  () => { wanted = true;  a.play(); });
+  h.setActionHandler("pause", () => { wanted = false; a.pause(); });
   h.setActionHandler("previoustrack", () => play(idx - 1));
   h.setActionHandler("nexttrack",     () => play(idx + 1));
   h.setActionHandler("seekbackward", e => a.currentTime -= (e.seekOffset || 15));
@@ -634,13 +664,14 @@ function media(d){
 
 $("#pp").onclick = () => {
   if (idx < 0) return play(0);
-  a.paused ? a.play() : a.pause();
+  if (a.paused){ wanted = true; tries = 0; netMsg(""); a.play().catch(()=>{}); }
+  else { wanted = false; a.pause(); }
 };
 $("#prev").onclick = () => play(idx - 1);
 $("#next").onclick = () => play(idx + 1);
 $("#q").oninput = render;
 $("#ord").onchange = render;
-$("#rate").onchange = () => a.playbackRate = parseFloat($("#rate").value);
+$("#rate").onchange = () => { a.playbackRate = parseFloat($("#rate").value); pos(); };
 
 // Duraklat görselini önceden yükle ki ilk geçişte boşluk oluşmasın.
 const pauseImg = new Image(); pauseImg.src = IMG_PAUSE;
@@ -656,10 +687,92 @@ function ppIcon(){
     img.alt = calan ? "Duraklat" : "Oynat";
   }
   $("#pp").title = calan ? "Duraklat" : "Oynat";
+  if ("mediaSession" in navigator) navigator.mediaSession.playbackState = calan ? "playing" : "paused";
 }
 a.onplay = ppIcon;
-a.onloadedmetadata = () => { $("#dur").textContent = fmt(a.duration); };
-a.onended = () => { if ($("#auto").checked) play(idx + 1); };
+a.onloadedmetadata = () => { $("#dur").textContent = fmt(a.duration); pos(); };
+a.onended = () => {
+  if (sleepMode === "end"){ stopSleep("Bölüm bitti, zamanlayıcı durdurdu."); return; }
+  if ($("#auto").checked) play(idx + 1);
+};
+
+/* ---------- Ağ koptuğunda kendi kendine toparlanma ----------
+   Telefonda şebeke bir an düşerse <audio> ya hata verip susar ya da
+   sessizce "waiting" durumunda kalır. Kullanıcı sebebini anlamaz.
+   Burada: dinlemeyi kullanıcı istiyorsa (wanted) aynı yerden yeniden
+   bağlanıyoruz; artan bekleme ile en fazla 6 deneme. */
+let wanted = false;          // kullanıcı çalmasını istiyor mu
+let tries = 0;               // arka arkaya deneme sayısı
+let retryTimer = null;
+let lastT = 0, lastTick = 0; // ilerleme gözcüsü
+
+function netMsg(s){
+  const el = $("#net");
+  el.textContent = s;
+  el.hidden = !s;
+}
+
+function reconnect(){
+  if (!wanted || idx < 0) return;
+  if (tries >= 6){ netMsg("Bağlantı kurulamadı. Yeniden denemek için ▶ tuşuna basın."); return; }
+  clearTimeout(retryTimer);
+  const bekle = Math.min(30000, 1000 * Math.pow(2, tries));  // 1,2,4,8,16,30 sn
+  tries++;
+  netMsg("Bağlantı koptu, yeniden bağlanılıyor… (" + tries + ")");
+  retryTimer = setTimeout(() => {
+    if (!wanted || idx < 0) return;
+    const pos = a.currentTime || (store[DATA[idx][2]] || {}).t || 0;
+    a.src = BASE + DATA[idx][2];
+    a.addEventListener("loadedmetadata", function ilk(){
+      a.removeEventListener("loadedmetadata", ilk);
+      if (pos > 0 && pos < (a.duration || Infinity)) a.currentTime = pos;
+      a.playbackRate = parseFloat($("#rate").value);
+      a.play().catch(()=>{});
+    });
+    a.load();
+  }, bekle);
+}
+
+a.addEventListener("error", () => { if (wanted) reconnect(); });
+a.addEventListener("playing", () => { tries = 0; netMsg(""); lastTick = Date.now(); });
+window.addEventListener("online", () => { if (wanted && a.paused){ tries = 0; reconnect(); } });
+window.addEventListener("offline", () => { if (wanted) netMsg("İnternet bağlantısı yok."); });
+
+// Gözcü: çalıyor görünüyor ama 15 saniyedir ilerlemiyorsa takılmıştır.
+setInterval(() => {
+  if (!wanted || a.paused || a.ended) return;
+  const now = Date.now();
+  if (a.currentTime !== lastT){ lastT = a.currentTime; lastTick = now; return; }
+  if (lastTick && now - lastTick > 15000){ lastTick = now; reconnect(); }
+}, 5000);
+
+/* ---------- Uyku zamanlayıcısı ---------- */
+let sleepMode = "0", sleepUntil = 0, sleepInt = null;
+
+function stopSleep(mesaj){
+  sleepMode = "0"; sleepUntil = 0;
+  clearInterval(sleepInt); sleepInt = null;
+  $("#sleep").value = "0";
+  $("#sleepleft").textContent = "";
+  wanted = false;
+  a.pause();
+  if (mesaj) netMsg(mesaj);
+}
+
+$("#sleep").onchange = e => {
+  sleepMode = e.target.value;
+  clearInterval(sleepInt); sleepInt = null;
+  sleepUntil = 0;
+  $("#sleepleft").textContent = "";
+  if (sleepMode === "0"){ netMsg(""); return; }
+  if (sleepMode === "end"){ $("#sleepleft").textContent = "bölüm sonu"; return; }
+  sleepUntil = Date.now() + parseInt(sleepMode, 10) * 60000;
+  sleepInt = setInterval(() => {
+    const kalan = Math.round((sleepUntil - Date.now()) / 1000);
+    if (kalan <= 0){ stopSleep("Uyku zamanlayıcısı durdurdu."); return; }
+    $("#sleepleft").textContent = fmt(kalan);
+  }, 1000);
+};
 
 let seeking = false;
 $("#seek").oninput  = () => { seeking = true; };
@@ -671,7 +784,21 @@ a.ontimeupdate = () => {
   $("#cur").textContent = fmt(a.currentTime);
   if (!seeking && a.duration) $("#seek").value = a.currentTime / a.duration * 1000;
   if (idx >= 0 && Math.floor(a.currentTime) % 5 === 0) keep();
+  pos();
 };
+
+// Kilit ekranındaki / bildirim çubuğundaki ilerleme çubuğu.
+function pos(){
+  if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+  if (!isFinite(a.duration) || a.duration <= 0) return;
+  try{
+    navigator.mediaSession.setPositionState({
+      duration: a.duration,
+      position: Math.min(a.currentTime, a.duration),
+      playbackRate: a.playbackRate || 1
+    });
+  }catch(e){}
+}
 
 function keep(){
   if (idx < 0) return;
@@ -740,6 +867,12 @@ if (location.hash === "#hakkinda") info(true);
 render();
 detectMode();
 showResume();
+
+// Çevrimdışı açılış: arayüzü saklayan service worker. Ses dosyaları
+// önbelleğe alınmaz; ayrıntı sw.js içinde.
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
 
 // Sayfa açılışında son bölümü çalmadan yükle ki "Devam et" anında başlasın.
 if (typeof store.last === "number" && store.last >= 0 && store.last < DATA.length){
