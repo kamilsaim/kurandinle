@@ -94,6 +94,12 @@
      background:var(--panel);border:1px solid var(--line);border-radius:12px;
      padding:10px 12px}
   #appbar[hidden]{display:none}
+  /* Uygulama-içi tarayıcı uyarısı (Facebook/Instagram/X vb.): "ana ekrana
+     ekle" bu tarayıcılarda çalışmadığı için gerçek tarayıcıya yönlendirir. */
+  #inappbar{display:flex;align-items:center;gap:12px;margin:14px 0 0;
+     background:var(--panel);border:1px solid var(--accent2);border-radius:12px;
+     padding:10px 12px}
+  #inappbar[hidden]{display:none}
   .ab-txt{flex:1;min-width:0;line-height:1.35}
   .ab-txt b{display:block;font-size:14px}
   .ab-txt span{display:block;font-size:12.5px;color:var(--muted)}
@@ -166,6 +172,15 @@
 </header>
 
 <div class="wrap">
+  <div id="inappbar" hidden>
+    <div class="ab-txt">
+      <b>Bu bağlantıyı tarayıcınızda açın</b>
+      <span id="inapptxt">Uygulama içi tarayıcıda "ana ekrana ekle" çalışmaz.</span>
+    </div>
+    <a class="ab-go" id="inappgo" href="#">Tarayıcıda aç</a>
+    <button class="ab-x" id="inappclose" title="Kapat" aria-label="Kapat">✕</button>
+  </div>
+
   <div id="appbar" hidden>
     <div class="ab-txt">
       <b>Android uygulaması</b>
@@ -852,6 +867,32 @@ $("#iclose").onclick = () => info(false);
 $("#ovl").onclick    = () => info(false);
 addEventListener("keydown", e => { if (e.key === "Escape") info(false); });
 if (location.hash === "#hakkinda") info(true);
+
+// Uygulama-içi tarayıcı (Facebook, Instagram, X/Twitter, Messenger, WhatsApp,
+// LINE vb.) tespiti: bu tarayıcılarda PWA yükleme/"ana ekrana ekle" desteği
+// yok. Android'de "intent://" ile doğrudan Chrome'a atlatılabiliyor; iOS'ta
+// bu şekilde bir kaçış yolu yok, o yüzden kullanıcıya "···" menüsünden
+// tarayıcıda açmasını anlatıyoruz.
+(function inAppBar(){
+  const ua = navigator.userAgent || "";
+  const inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|Messenger|WhatsApp|Twitter|; ?wv\)/i.test(ua);
+  const uygulamaIcinde = matchMedia("(display-mode: standalone)").matches
+                      || document.referrer.startsWith("android-app://");
+  if (!inApp || uygulamaIcinde || store.inappGizle) return;
+
+  const bar = $("#inappbar");
+  const isAndroid = /Android/i.test(ua);
+  const go = $("#inappgo");
+  if (isAndroid){
+    const url = location.href.replace(/^https?:\/\//, "");
+    go.href = "intent://" + url + "#Intent;scheme=https;package=com.android.chrome;end";
+  } else {
+    $("#inapptxt").textContent = "Sağ üstteki \"•••\" menüsünden \"Safari'de aç\" seçin.";
+    go.style.display = "none";
+  }
+  bar.hidden = false;
+  $("#inappclose").onclick = () => { bar.hidden = true; store.inappGizle = 1; save(); };
+})();
 
 // Android uygulaması şeridi. Uygulamanın kendi içinde açıldığında ya da
 // kullanıcı bir kez kapattığında bir daha gösterilmez.
