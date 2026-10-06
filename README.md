@@ -23,10 +23,13 @@ Bağlantıyı açın ve bir bölüme dokunun. Kurulum yok, üyelik yok, reklam y
 
 - **Kaldığınız yerden devam eder.** Sayfayı kapatsanız da hangi bölümde, kaçıncı
   saniyede kaldığınız hatırlanır.
-- **Sûre arayın.** Aradığınız sûrenin adını yazmanız yeterli.
+- **Sûre arayın.** Aradığınız sûrenin adını yazmanız yeterli. Şapkalı ya da
+  şapkasız yazabilirsiniz (“Yâsîn” de olur “yasin” de); İhlâs, Fil, Nebe gibi
+  bölüm başlığında geçmeyen sûreler de bulunur.
 - **Sıradaki bölüm kendiliğinden başlar.** Biten bölümlerde ✓ işareti, yarım
   kalanlarda ne kadarını dinlediğinizi gösteren ince bir çizgi kalır.
-- **Hızı ayarlayın.** 0.75x ile 2x arası.
+- **Hızı ayarlayın.** 0.75x ile 2x arası; seçtiğiniz hız bir sonraki açılışta
+  da geçerli olur.
 - **Uyku zamanlayıcısı.** Alt çubuktan 15–60 dakika sonra ya da bulunduğunuz
   bölüm bitince çalmayı durdurabilirsiniz.
 - **Bağlantı koparsa kendini toparlar.** İnternet bir an kesilirse oynatıcı
@@ -60,6 +63,10 @@ düğmesini kullanın.
 
 Bölüm başına yaklaşık **55 MB**, tamamı **~2,8 GB**. İnternetiniz sınırlıysa
 kablosuz ağa bağlıyken indirmeniz iyi olur.
+
+Bilgisayarda Chrome ya da Edge ile toplu indirirken bir klasör seçmeniz
+istenir; dosyalar doğrudan oraya kaydedilir. İndirmeyi iptal ederseniz yarım
+kalan dosya silinir.
 
 ## Kaldığınız yer nerede saklanıyor
 
