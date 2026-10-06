@@ -7,7 +7,7 @@
  * Sürümü değiştirmek eski önbelleği siler: dosyaları güncelleyince
  * SURUM değerini artır.
  */
-const SURUM = "kuran-v1";
+const SURUM = "kuran-v2";
 const KABUK = [
   "./",
   "./index.html",
@@ -52,8 +52,11 @@ self.addEventListener("fetch", e => {
     e.respondWith(
       fetch(r)
         .then(y => {
-          const kopya = y.clone();
-          caches.open(SURUM).then(c => c.put(r, kopya));
+          // Hata sayfası (404/500) saklanırsa çevrimdışıyken o açılır.
+          if (y.ok){
+            const kopya = y.clone();
+            caches.open(SURUM).then(c => c.put(r, kopya));
+          }
           return y;
         })
         .catch(() => caches.match(r).then(v => v || caches.match("./index.html")))
