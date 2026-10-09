@@ -63,6 +63,9 @@
   .dl{color:var(--muted);text-decoration:none;font-size:17px;padding:2px 6px;border-radius:6px}
   .dl:hover{background:var(--line);color:var(--fg)}
   .done{color:var(--accent);font-size:13px}
+  /* iOS uygulaması (Capacitor kabuğu): WKWebView dosya indiremez ve uygulama
+     zaten kurulu — indirme, Android ve "ana ekrana ekle" bölümleri gizlenir. */
+  .ios-app .dl,.ios-app .sel,.ios-app .webonly{display:none !important}
 
   footer{position:fixed;left:0;right:0;bottom:0;background:var(--panel);
          border-top:1px solid var(--line);padding:10px 16px 14px}
@@ -207,13 +210,13 @@
       <option value="desc">Sıra: 52 → 1</option>
     </select>
   </div>
-  <div class="tools">
+  <div class="tools webonly">
     <button id="selall">Tümünü seç</button>
     <button id="selnone">Seçimi temizle</button>
     <button class="go" id="dlsel" disabled>Seçilenleri indir</button>
     <button class="go" id="dlall">Tümünü indir (52)</button>
   </div>
-  <div class="hint" id="mode">İndirme yöntemi denetleniyor…</div>
+  <div class="hint webonly" id="mode">İndirme yöntemi denetleniyor…</div>
   <div class="hint" id="hint"></div>
   <ul id="list"></ul>
 </div>
@@ -253,16 +256,17 @@
         sayfanın üstündeki kartta görünür. Biten bölümler ✓ ile işaretlenir; yarım
         kalanların satır altında ne kadarını dinlediğinizi gösteren ince bir çizgi olur.</li>
       <li><b>Arama:</b> sûre adı yazarak ilgili bölümü bulun (ör. “Yâsîn”, “Bakara”).</li>
-      <li><b>Arka planda çalma:</b> telefonda ana ekrana eklerseniz ekran kilitliyken de
-        dinlemeye devam eder, kilit ekranından kontrol edebilirsiniz.</li>
+      <li><b>Arka planda çalma:</b> uygulamada ya da ana ekrana eklediğiniz sitede
+        ekran kilitliyken de dinlemeye devam eder, kilit ekranından kontrol edebilirsiniz.</li>
       <li><b>Hız:</b> 0.75x – 2x arası ayarlanabilir; bölüm bitince sıradakine geçer.</li>
       <li><b>Uyku zamanlayıcısı:</b> alt çubuktan 15–60 dakika sonra ya da bulunduğunuz
         bölüm bitince çalmayı durdurabilirsiniz.</li>
       <li><b>Bağlantı koparsa:</b> internet bir an kesilirse oynatıcı kaldığı yerden
         kendi kendine yeniden bağlanır; sayfa çevrimdışıyken de açılır.</li>
-      <li><b>İndirme:</b> bölümleri seçip mp3 olarak bilgisayarınıza kaydedebilirsiniz.</li>
+      <li class="webonly"><b>İndirme:</b> bölümleri seçip mp3 olarak bilgisayarınıza kaydedebilirsiniz.</li>
     </ul>
 
+    <div class="webonly">
     <h3>Android uygulaması</h3>
     <p>
       Siteyi tam ekran açan, adres çubuğu görünmeyen bir Android uygulaması var.
@@ -276,6 +280,7 @@
       Uygulama istemiyorsanız siteyi ana ekranınıza da ekleyebilirsiniz:
       Chrome'da <b>⋮ → Uygulamayı yükle</b>, iPhone'da <b>Paylaş → Ana Ekrana Ekle</b>.
     </p>
+    </div>
 
     <h3>Kısayollar</h3>
     <p class="keys">
@@ -347,6 +352,11 @@ const BASE = "https://diyanetkuranradyo.com/assets/";
 // Boş bırakılırsa proxy denenmez ve gerekirse PowerShell indiricisine düşülür.
 const PROXY = "https://kuran-dl.saimkamil.workers.dev/dl/";
 let DLMODE = "probe";   // "proxy" | "direct" | "none"
+// iOS uygulaması (C:\mac\kurandinle Capacitor kabuğu) siteyi bu adresten açar;
+// Capacitor köprüsü sayfadan önce yüklenir. İndirme orada gizlenir (bkz. .ios-app).
+const IOS_APP = !!(window.Capacitor && window.Capacitor.getPlatform
+                   && window.Capacitor.getPlatform() === "ios");
+if (IOS_APP) document.documentElement.classList.add("ios-app");
 // PowerShell indiricisi yalnızca bilgisayarda işe yarar.
 const MOBIL = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
 
@@ -979,12 +989,12 @@ if (store.rate && [...$("#rate").options].some(o => o.value === String(store.rat
 if (typeof store.auto === "boolean") $("#auto").checked = store.auto;
 
 render();
-const modeReady = detectMode();
+const modeReady = IOS_APP ? Promise.resolve() : detectMode();
 showResume();
 
 // Çevrimdışı açılış: arayüzü saklayan service worker. Ses dosyaları
 // önbelleğe alınmaz; ayrıntı sw.js içinde.
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
+if (!IOS_APP && "serviceWorker" in navigator && location.protocol.startsWith("http")){
   addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
 
