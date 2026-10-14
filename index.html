@@ -466,7 +466,80 @@ const DATA = [
 ];
 
 const $ = s => document.querySelector(s);
-const a = $("#a"), list = $("#list");
+
+/* ---------- iOS uygulamasının yerel oynatıcısı (iOS 1.1+) ----------
+   Uygulamada KuranSes eklentisi varsa ses <audio> yerine iOS'un kendi
+   oynatıcısıyla (AVPlayer) çalar: arka planda sıradakine geçer, uyku
+   zamanlayıcısını işletir, CarPlay'le aynı oynatıcıyı paylaşır.
+   Aşağıdaki nesne <audio>'nun bu sayfada kullanılan kısmını taklit eder,
+   böylece oynatıcı kodu iki yolda da aynı kalır. Eklenti yoksa (tarayıcı,
+   Android, eski iOS derlemesi) KS boştur ve <audio> kullanılır. */
+const KS = IOS_APP && (window.Capacitor.PluginHeaders || []).some(h => h.name === "KuranSes")
+  ? window.Capacitor.Plugins.KuranSes : null;
+
+function yerelSes(){
+  const s = new EventTarget();
+  let st = { index: -1, konum: 0, sure: NaN, caliyor: false, ag: "" };
+  let bekleyen = null;   // src atandı, play() bekleniyor
+  let hedef = null;      // istenen bölüm; yerel oynatıcı ona geçene dek eski olaylar yok sayılır
+  let hiz = 1;
+  const yay = tip => {
+    const e = new Event(tip);
+    if (typeof s["on" + tip] === "function") s["on" + tip](e);
+    s.dispatchEvent(e);
+  };
+  Object.defineProperties(s, {
+    src: { get: () => "", set: v => {
+      const id = String(v).split("/").pop();
+      bekleyen = { index: DATA.findIndex(d => d[2] === id), konum: 0 };
+      st.konum = 0; st.sure = NaN;
+    } },
+    paused: { get: () => !st.caliyor },
+    ended: { get: () => false },
+    duration: { get: () => st.sure },
+    currentTime: {
+      get: () => st.konum,
+      set: v => {
+        v = Math.max(0, +v || 0);
+        if (st.sure > 0) v = Math.min(v, st.sure);
+        st.konum = v;
+        if (bekleyen) bekleyen.konum = v; else KS.atla({ konum: v });
+      }
+    },
+    playbackRate: { get: () => hiz, set: v => { v = +v || 1; if (v !== hiz){ hiz = v; KS.hiz({ oran: v }); } } },
+    defaultPlaybackRate: { get: () => hiz, set: () => {} },
+  });
+  s.play = () => {
+    if (!bekleyen) return KS.oynat();
+    const b = bekleyen; bekleyen = null; hedef = b.index;
+    // Konum verilmezse yerel oynatıcı kaldığı yerden açar (kurallar aynı)
+    return KS.cal(b.konum > 0 ? { index: b.index, konum: b.konum } : { index: b.index })
+      .catch(e => { hedef = null; throw e; });
+  };
+  s.pause = () => { KS.duraklat(); };
+  s.load = () => {};
+  // Yerel oynatıcıdan gelen durum: saniyede bir ve her değişimde.
+  s.durum = d => {
+    if (hedef !== null){ if (d.index !== hedef) return; hedef = null; }
+    if (bekleyen) return;
+    const yeniBolum = d.index !== st.index;
+    const sureGeldi = d.sure > 0 && (yeniBolum || !(st.sure > 0));
+    const calmaDegisti = d.caliyor !== st.caliyor;
+    const agDegisti = d.ag !== st.ag;
+    st = { index: d.index, konum: d.konum, sure: d.sure > 0 ? d.sure : NaN, caliyor: d.caliyor, ag: d.ag };
+    if (d.hiz && d.hiz !== hiz) hiz = d.hiz;
+    // Bölümü yerel oynatıcı değiştirdiyse (sıradakine geçti, CarPlay'den seçildi)
+    if (d.index >= 0 && d.index !== idx) yerelBolum(d.index);
+    if (sureGeldi) yay("loadedmetadata");
+    yay("timeupdate");
+    if (calmaDegisti) yay(d.caliyor ? "play" : "pause");
+    if (agDegisti) netMsg(d.ag);
+    hizSecici(d.hiz);
+  };
+  return s;
+}
+
+const a = KS ? yerelSes() : $("#a"), list = $("#list");
 let idx = -1;                              // DATA içindeki aktif indeks
 const KEY = "dkr-kuran-meal";
 // Bazı uygulama içi tarayıcılar / gizli modlar localStorage'ı engeller ya da
@@ -713,8 +786,7 @@ function play(i, resume = true){
     if (resume && p && p.t > 20 && (!p.d || p.t < p.d - 20)) seekOnLoad(p.t);
     a.playbackRate = parseFloat($("#rate").value);
   }
-  $("#now").innerHTML = "<b>" + d[0] + ".</b> " + d[1];
-  document.title = d[0] + ". " + d[1] + " — Kur'ân-ı Kerîm ve Meâli";
+  calanGoster(d);
   wanted = true;
   netMsg("");
   tries = 0;
@@ -723,9 +795,34 @@ function play(i, resume = true){
   render();
 }
 
+function calanGoster(d){
+  $("#now").innerHTML = "<b>" + d[0] + ".</b> " + d[1];
+  document.title = d[0] + ". " + d[1] + " — Kur'ân-ı Kerîm ve Meâli";
+}
+
+// Yerel oynatıcı bölümü kendisi değiştirdi (sıradakine geçti, CarPlay'den
+// seçildi, uygulama açılırken zaten çalıyordu): yalnız ekranı güncelle.
+function yerelBolum(i){
+  if (i < 0 || i >= DATA.length) return;
+  idx = i;
+  calanGoster(DATA[i]);
+  $("#dur").textContent = "0:00";
+  render();
+}
+
+// Hız kilit ekranından / CarPlay'den değiştirilince seçici de uysun.
+function hizSecici(h){
+  if (!h || $("#rate").value === String(h)) return;
+  if ([...$("#rate").options].some(o => o.value === String(h))){
+    $("#rate").value = String(h);
+    store.rate = h; save();
+  }
+}
+
 // Telefonda kilit ekranı / bildirim çubuğu kontrolleri ve arka planda çalma.
+// iOS uygulamasında (KS) bunları yerel oynatıcı yapar.
 function media(d){
-  if (!("mediaSession" in navigator)) return;
+  if (KS || !("mediaSession" in navigator)) return;
   navigator.mediaSession.metadata = new MediaMetadata({
     title: d[0] + ". " + d[1],
     artist: "Fatih Okumuş & Nisan Kumru",
@@ -761,7 +858,10 @@ $("#rate").onchange = () => {
   store.rate = r; save();
   pos();
 };
-$("#auto").onchange = () => { store.auto = $("#auto").checked; save(); };
+$("#auto").onchange = () => {
+  store.auto = $("#auto").checked; save();
+  if (KS) KS.ayar({ otomatik: store.auto });
+};
 
 // Süre bilinince (loadedmetadata) verilen konuma atla.
 function seekOnLoad(t){
@@ -785,7 +885,7 @@ function ppIcon(){
     img.alt = calan ? "Duraklat" : "Oynat";
   }
   $("#pp").title = calan ? "Duraklat" : "Oynat";
-  if ("mediaSession" in navigator) navigator.mediaSession.playbackState = calan ? "playing" : "paused";
+  if (!KS && "mediaSession" in navigator) navigator.mediaSession.playbackState = calan ? "playing" : "paused";
 }
 a.onplay = ppIcon;
 a.onloadedmetadata = () => { $("#dur").textContent = fmt(a.duration); pos(); };
@@ -811,7 +911,7 @@ function netMsg(s){
 }
 
 function reconnect(){
-  if (!wanted || idx < 0) return;
+  if (KS || !wanted || idx < 0) return;   // iOS uygulamasında yerel oynatıcı kendisi bağlanır
   if (tries >= 6){ netMsg("Bağlantı kurulamadı. Yeniden denemek için ▶ tuşuna basın."); return; }
   clearTimeout(retryTimer);
   const bekle = Math.min(30000, 1000 * Math.pow(2, tries));  // 1,2,4,8,16,30 sn
@@ -838,7 +938,7 @@ window.addEventListener("offline", () => { if (wanted) netMsg("İnternet bağlan
 
 // Gözcü: çalıyor görünüyor ama 15 saniyedir ilerlemiyorsa takılmıştır.
 setInterval(() => {
-  if (!wanted || a.paused || a.ended) return;
+  if (KS || !wanted || a.paused || a.ended) return;
   const now = Date.now();
   if (a.currentTime !== lastT){ lastT = a.currentTime; lastTick = now; return; }
   if (lastTick && now - lastTick > 15000){ lastTick = now; reconnect(); }
@@ -853,6 +953,7 @@ function stopSleep(mesaj){
   $("#sleep").value = "0";
   $("#sleepleft").textContent = "";
   wanted = false;
+  if (KS) KS.uyku({ dakika: 0 });
   a.pause();
   if (mesaj) netMsg(mesaj);
 }
@@ -862,6 +963,9 @@ $("#sleep").onchange = e => {
   clearInterval(sleepInt); sleepInt = null;
   sleepUntil = 0;
   $("#sleepleft").textContent = "";
+  // iOS uygulamasında sayfa arka planda uyur: durdurmayı yerel oynatıcı yapar,
+  // buradaki sayaç yalnız kalan süreyi gösterir.
+  if (KS) KS.uyku(sleepMode === "end" ? { bolumSonu: true } : { dakika: parseInt(sleepMode, 10) || 0 });
   if (sleepMode === "0"){ netMsg(""); return; }
   if (sleepMode === "end"){ $("#sleepleft").textContent = "bölüm sonu"; return; }
   sleepUntil = Date.now() + parseInt(sleepMode, 10) * 60000;
@@ -887,7 +991,7 @@ a.ontimeupdate = () => {
 
 // Kilit ekranındaki / bildirim çubuğundaki ilerleme çubuğu.
 function pos(){
-  if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+  if (KS || !("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
   if (!isFinite(a.duration) || a.duration <= 0) return;
   try{
     navigator.mediaSession.setPositionState({
@@ -1009,6 +1113,39 @@ if (store.rate && [...$("#rate").options].some(o => o.value === String(store.rat
 if (typeof store.auto === "boolean") $("#auto").checked = store.auto;
 
 render();
+
+// iOS uygulaması: bölüm listesini, ilerlemeyi ve tercihleri yerel oynatıcıyla
+// eşitle. Yerel oynatıcı kendi kaydını tutar (CarPlay'de dinlenenler de orada);
+// uygulama her öne geldiğinde oradaki güncel durum sayfaya alınır.
+function yerelEsitle(){
+  return KS.durum().then(d => {
+    for (const [id, p] of Object.entries(d.ilerleme || {})) store[id] = { t: p.t, d: p.d };
+    if (d.son >= 0) store.last = d.son;
+    if (typeof d.otomatik === "boolean") $("#auto").checked = store.auto = d.otomatik;
+    save();
+    a.durum(d);
+    render();
+    showResume();
+  }).catch(() => {});
+}
+if (KS){
+  const ilerleme = {};
+  for (const d of DATA){
+    const p = store[d[2]];
+    if (p && p.d) ilerleme[d[2]] = { t: p.t, d: p.d };
+  }
+  KS.addListener("durum", d => a.durum(d));
+  KS.addListener("uyku", d => stopSleep(d.mesaj));
+  KS.kuyruk({
+    bolumler: DATA.map(d => ({ id: d[2], baslik: d[1], no: d[0] })),
+    ilerleme,
+    son: typeof store.last === "number" ? store.last : -1,
+    otomatik: $("#auto").checked,
+    hiz: parseFloat($("#rate").value)
+  }).then(yerelEsitle).catch(() => {});
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) yerelEsitle(); });
+}
+
 const modeReady = IOS_APP ? Promise.resolve() : detectMode();
 showResume();
 
