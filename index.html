@@ -78,6 +78,9 @@
   /* iOS uygulaması (Capacitor kabuğu): WKWebView dosya indiremez ve uygulama
      zaten kurulu — indirme, Android ve "ana ekrana ekle" bölümleri gizlenir. */
   .ios-app .dl,.ios-app .sel,.ios-app .webonly{display:none !important}
+  /* Yalnızca iPhone uygulamasında anlamlı olanlar (ör. CarPlay) */
+  .iosonly{display:none}
+  .ios-app li.iosonly{display:list-item}
 
   footer{position:fixed;left:0;right:0;bottom:0;background:var(--panel);
          border-top:1px solid var(--line);
@@ -277,6 +280,9 @@
         bölüm bitince çalmayı durdurabilirsiniz.</li>
       <li><b>Bağlantı koparsa:</b> internet bir an kesilirse oynatıcı kaldığı yerden
         kendi kendine yeniden bağlanır; sayfa çevrimdışıyken de açılır.</li>
+      <li class="iosonly"><b>CarPlay:</b> arabanızın ekranında bölüm listesi ve
+        “Dinlemeye devam et” çıkar; oynat/duraklat, ±15 sn, hız ve sıradaki bölüm
+        araba ekranından ve direksiyon tuşlarından yönetilir.</li>
       <li class="webonly"><b>İndirme:</b> bölümleri seçip mp3 olarak bilgisayarınıza kaydedebilirsiniz.</li>
     </ul>
 

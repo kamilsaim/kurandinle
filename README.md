@@ -46,6 +46,14 @@ Kurarken Android "bilinmeyen kaynak" uyarısı verir; çıkan ekranda izni verip
 devam etmeniz gerekir. Uygulama içinde ses dosyası taşımaz, bölümleri
 site üzerinden dinletir.
 
+## iPhone uygulaması ve CarPlay
+
+iPhone uygulaması test aşamasında (TestFlight), App Store'a henüz gönderilmedi.
+Uygulamada ses telefonun kendi oynatıcısıyla çalar ve **CarPlay** desteklenir:
+arabanın ekranında 52 bölümlük liste ve en üstte **"Dinlemeye devam et"** çıkar;
+oynat/duraklat, ±15 saniye, hız ve sıradaki bölüm araba ekranından ve direksiyon
+tuşlarından yönetilir. Telefonda uygulamayı açmadan arabadan başlatabilirsiniz.
+
 ## Telefonda arka planda dinleme
 
 Siteyi telefondan açıp ana ekrana ekleyin — Chrome'da **⋮ → "Uygulamayı yükle"**,
